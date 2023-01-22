@@ -4,9 +4,8 @@ project(test_gl VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-set(GLAD_C "C:/Program Files (x86)/Mingw/include/glad/glad.c")
-#set(SHADER_CPP "C:/Program Files (x86)/Mingw/include/shader/shader.cpp")
-#add_executable(test_gl main.cpp ${GLAD_C} ${SHADER_CPP})
+set(GLAD_C "./include/glad/glad.c")
+
 add_executable(test_gl main.cpp ${GLAD_C})
 
 
