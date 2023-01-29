@@ -17,7 +17,7 @@ enum Camera_Movement {
 
 // Default camera values
 const float YAW = -90.0f;
-const float PITCH = -45.0f;
+const float PITCH = -4.5f;
 const float SPEED = 30.0f;
 const float SENSITIVITY = 0.5f;
 const float ZOOM = 80.0f;
@@ -44,22 +44,27 @@ public:
     // windows dims
     float win_width;
     float win_height;
+
     // constructor with vectors
-    Camera(float SCR_WIDTH, float SCR_HEIGHT, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-           float yaw = YAW, float pitch = PITCH ) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED),
-                                                   MouseSensitivity(SENSITIVITY), Zoom(ZOOM)  {
+    Camera(float SCR_WIDTH, float SCR_HEIGHT, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+           glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+           float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.033935, -0.233445, -0.971778)), MovementSpeed(SPEED),
+                                                   MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
         Position = position;
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
-        win_width=SCR_WIDTH;win_height=SCR_HEIGHT;
+        win_width = SCR_WIDTH;
+        win_height = SCR_HEIGHT;
     }
-    glm::mat4 UpdatedProjection(){
-        return  glm::perspective( glm::radians(Zoom), (float)win_width / (float)win_height,0.1f, 1000.0f);
+
+    glm::mat4 UpdatedProjection() {
+        return glm::perspective(glm::radians(Zoom), (float) win_width / (float) win_height, 0.1f, 1000.0f);
 
     }
-    glm::mat4 UpdatedView(){
+
+    glm::mat4 UpdatedView() {
         return lookAt(Position, Position + Front, Up);
     }
 
@@ -98,7 +103,7 @@ public:
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset) {
-        if (Zoom >= 1.0f )
+        if (Zoom >= 1.0f)
             Zoom -= yoffset;
         if (Zoom <= 1.0f)
             Zoom = 1.0f;

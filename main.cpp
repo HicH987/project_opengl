@@ -37,7 +37,8 @@ GLFWwindow *window;
 
 // camera
 //Camera camera(SCR_WIDTH, SCR_HEIGHT, vec3(0.55, 7.7, 11.8));
-Camera camera(SCR_WIDTH, SCR_HEIGHT, vec3(0.55, 7.7, 20));
+Camera camera(SCR_WIDTH, SCR_HEIGHT, vec3(-0.107400, 2, 20));
+
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -56,7 +57,7 @@ bool isCam3 = false;
 bool isFreeCam = false;
 bool showElectronOrbit = true;
 
-float animationSpeed = 0.0001f;
+float animationSpeed = 1.0f;
 
 
 float electronOrbitRadius = 100.0f;
@@ -132,7 +133,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    const float angleStep = 2 * 3.14159f / 5;
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window)) {
@@ -141,7 +142,7 @@ int main() {
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        frameToggled += deltaTime;
+        frameToggled += deltaTime * animationSpeed;
 
         // input
         // ----------------
@@ -167,8 +168,10 @@ int main() {
             model = mat4(1.0f);
             model = scale(model, vec3(0.1f, 0.1f, 0.1f));
 
-            electronPos = atomPos +
-                          vec3(sin(frameToggled) * electronOrbitRadius, 0.0f, cos(frameToggled) * electronOrbitRadius);
+            electronPos = atomPos + vec3(
+                    sin(frameToggled) * electronOrbitRadius,
+                    0.0f,
+                    cos(frameToggled) * electronOrbitRadius);
             model = translate(model, electronPos);
             electronObj1.Model = model;
 
@@ -179,8 +182,10 @@ int main() {
             model = mat4(1.0f);
             model = scale(model, vec3(0.1f, 0.1f, 0.1f));
 
-            electronPos = atomPos +
-                          vec3(0.0f, sin(frameToggled) * electronOrbitRadius, cos(frameToggled) * electronOrbitRadius);
+            electronPos = atomPos + vec3(
+                    0.0f,
+                    sin(frameToggled) * electronOrbitRadius,
+                    cos(frameToggled) * electronOrbitRadius);
             model = translate(model, electronPos);
             electronObj2.Model = model;
 
@@ -191,7 +196,10 @@ int main() {
             model = mat4(1.0f);
             model = scale(model, vec3(0.1f, 0.1f, 0.1f));
 
-            electronPos = atomPos + vec3(cos(frameToggled) * electronOrbitRadius, sin(frameToggled) * electronOrbitRadius, 0.0f);
+            electronPos = atomPos + vec3(
+                    cos(frameToggled) * electronOrbitRadius,
+                    sin(frameToggled) * electronOrbitRadius,
+                    0.0f);
             model = translate(model, electronPos);
             electronObj3.Model = model;
 
@@ -204,7 +212,7 @@ int main() {
             float diagonalOrbitRadius = sqrt(pow(electronOrbitRadius, 2) / 2);
             float diagonalOrbitAngle = 45.0f;
 
-            vec3 electronPos = atomPos + vec3(sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
+            electronPos = atomPos + vec3(sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
                                               sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
                                               cos(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius);
 
@@ -397,9 +405,12 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
         isAnimated = !isAnimated;
 
     if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
-        animationSpeed = animationSpeed * 4;
+        animationSpeed = animationSpeed * 1.2;
     if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
-        animationSpeed = animationSpeed / 4;
+        animationSpeed = animationSpeed / 1.2;
+
+    if (key == GLFW_KEY_KP_MULTIPLY && action == GLFW_PRESS)
+        animationSpeed = 1;
 
     if (key == GLFW_KEY_CAPS_LOCK && action == GLFW_PRESS)
         diableCursor = !diableCursor;
