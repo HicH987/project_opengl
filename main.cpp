@@ -3,21 +3,21 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include<windows.h>
-
-using namespace glm;
-using namespace std;
-
+//.............................
 #include "extra_tools/Window.h"
 #include "extra_tools/camera.h"
 #include "extra_tools/3d_object.h"
-
+//.............................
 #include "external_lib/skybox.h"
 #include "external_lib/circle.h"
 
+using namespace glm;
+using namespace std;
 using Skybox = Learus_Skybox::Skybox;
 using Circle = Learus_Circle::Circle;
 
+// prototype of all used functions
+// ------------------------------------
 void processInput(GLFWwindow *window);
 
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
@@ -31,12 +31,13 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 void allCallbacks();
 
 // windows
+// -------
 const unsigned int SCR_WIDTH = 950;
 const unsigned int SCR_HEIGHT = 400;
 GLFWwindow *window;
 
 // camera
-//Camera camera(SCR_WIDTH, SCR_HEIGHT, vec3(0.55, 7.7, 11.8));
+// -------
 Camera camera(SCR_WIDTH, SCR_HEIGHT, vec3(-0.107400, 2, 20));
 
 float lastX = SCR_WIDTH / 2.0f;
@@ -44,26 +45,30 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
+// -------
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float frameToggled = 0.0f;
 
 // stoping Animation
-bool isAnimated = true;
+// -------
 bool diableCursor = true;
 bool isCam1 = false;
 bool isCam2 = false;
 bool isCam3 = false;
 bool isFreeCam = false;
 bool showElectronOrbit = true;
-
 float animationSpeed = 1.0f;
 
 
 float electronOrbitRadius = 100.0f;
 vec3 atomPos = vec3(0.0f, -1.0f, 0.0f);
-vec3 electronPos =
-        atomPos + vec3(sin(frameToggled) * electronOrbitRadius, 0.0f, cos(frameToggled) * electronOrbitRadius);
+vec3 electronPos = atomPos + vec3(
+        sin(frameToggled) * electronOrbitRadius,
+        0.0f,
+        cos(frameToggled) * electronOrbitRadius
+);
+vec3 lightElectronPos = electronPos;
 
 int main() {
     // create glfw window
@@ -84,48 +89,76 @@ int main() {
 
     // init atom object
     // ------------------------------------
-    LightObj atomObj(mat4(1.0f), atomPos);
-    atomObj.loadObj("resources/models/a.obj");
-    atomObj.bind_VAO_VBO();
-    atomObj.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
-    atomObj.setObjectColor(0.0f, 0.0f, 1.0f);
-    atomObj.setLightColor(0.92f, 1.0f, 1.0f);
+    Object atomUDObj(mat4(1.0f));
+    atomUDObj.loadObj("resources/models/atom_ud.obj");
+    atomUDObj.bind_VAO_VBO();
+    atomUDObj.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    atomUDObj.setObjectColor(0.66,0.05,0.06);
+    atomUDObj.setLightColor(0.92, 1.0, 1.0);
+
+    Object atomLRObj(mat4(1.0f));
+    atomLRObj.loadObj("resources/models/atom_lr.obj");
+    atomLRObj.bind_VAO_VBO();
+    atomLRObj.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    atomLRObj.setObjectColor(0.15,0.05,0.66);
+    atomLRObj.setLightColor(0.92, 1.0, 1.0);
+
+    Object atomRLObj(mat4(1.0f));
+    atomRLObj.loadObj("resources/models/atom_rl.obj");
+    atomRLObj.bind_VAO_VBO();
+    atomRLObj.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    atomRLObj.setObjectColor(1.0f, 1.0f, 1.0f);
+    atomRLObj.setLightColor(0.92, 1.0, 1.0);
 
 
-    Circle electronOrbitCircle1(atomPos, electronOrbitRadius, vec3(0.92f, 0.35f, 0.0f), 3000);
+    Circle electronOrbitCircle1(atomPos, electronOrbitRadius, vec3(0.94, 0.39, 0.39), 3000);
     Object electronObj1(mat4(1.0f));
     electronObj1.loadObj("resources/models/electron.obj");
     electronObj1.bind_VAO_VBO();
-    electronObj1.loadSahders("shaders/light_object.vs", "shaders/light_object.fs");
-    electronObj1.setObjectColor(0.92f, 0.35f, 0.0f);
+    electronObj1.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    electronObj1.setObjectColor(0.94, 0.39, 0.39);
+    electronObj1.setLightColor(0.92, 1.0, 1.0);
 
-    Circle electronOrbitCircle2(atomPos, electronOrbitRadius, vec3(0.92f, 0.35f, 0.0f), 3000);
+    Circle electronOrbitCircle2(atomPos, electronOrbitRadius, vec3(0.39, 0.44, 0.98), 3000);
     Object electronObj2(mat4(1.0f));
     electronObj2.loadObj("resources/models/electron.obj");
     electronObj2.bind_VAO_VBO();
-    electronObj2.loadSahders("shaders/light_object.vs", "shaders/light_object.fs");
-    electronObj2.setObjectColor(0.92f, 0.35f, 0.0f);
+    electronObj2.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    electronObj2.setObjectColor(0.39, 0.44, 0.94);
+    electronObj2.setLightColor(0.92, 1.0, 1.0);
 
-    Circle electronOrbitCircle3(atomPos, electronOrbitRadius, vec3(0.92f, 0.35f, 0.0f), 3000);
+    Circle electronOrbitCircle3(atomPos, electronOrbitRadius, vec3(0.39, 0.94, 0.53), 3000);
     Object electronObj3(mat4(1.0f));
     electronObj3.loadObj("resources/models/electron.obj");
     electronObj3.bind_VAO_VBO();
-    electronObj3.loadSahders("shaders/light_object.vs", "shaders/light_object.fs");
-    electronObj3.setObjectColor(0.92f, 0.35f, 0.0f);
+    electronObj3.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    electronObj3.setObjectColor(0.39, 0.94, 0.53);
+    electronObj3.setLightColor(0.92, 1.0, 1.0);
 
-    Circle electronOrbitCircle4(atomPos, electronOrbitRadius, vec3(0.92f, 0.35f, 0.0f), 3000);
+    Circle electronOrbitCircle4(atomPos, electronOrbitRadius, vec3(0.62, 0.39, 0.94), 3000);
     Object electronObj4(mat4(1.0f));
     electronObj4.loadObj("resources/models/electron.obj");
     electronObj4.bind_VAO_VBO();
-    electronObj4.loadSahders("shaders/light_object.vs", "shaders/light_object.fs");
-    electronObj4.setObjectColor(0.92f, 0.35f, 0.0f);
+    electronObj4.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    electronObj4.setObjectColor(0.62, 0.39, 0.94);
+    electronObj4.setLightColor(0.92, 1.0, 1.0);
 
-    Circle electronOrbitCircle5(atomPos, electronOrbitRadius, vec3(0.92f, 0.35f, 0.0f), 3000);
+    Circle electronOrbitCircle5(atomPos, electronOrbitRadius, vec3(0.94, 0.6, 0.39), 3000);
     Object electronObj5(mat4(1.0f));
     electronObj5.loadObj("resources/models/electron.obj");
     electronObj5.bind_VAO_VBO();
-    electronObj5.loadSahders("shaders/light_object.vs", "shaders/light_object.fs");
-    electronObj5.setObjectColor(0.92f, 0.35f, 0.0f);
+    electronObj5.loadSahders("shaders/basic_lighting.vs", "shaders/basic_lighting.fs");
+    electronObj5.setObjectColor(0.94, 0.6, 0.39);
+    electronObj5.setLightColor(0.92, 1.0, 1.0);
+
+
+    Circle lightElectronOrbitCircle(atomPos, electronOrbitRadius - 50, vec3(0.92, 1, 0), 300);
+    LightObj lightElectronObj(mat4(1.0f), lightElectronPos);
+    lightElectronObj.loadObj("resources/models/electron.obj");
+    lightElectronObj.bind_VAO_VBO();
+    lightElectronObj.loadSahders("shaders/light_object.vs", "shaders/light_object.fs");
+    lightElectronObj.setObjectColor(0.92, 1, 0);
+
 
 
     // configure global opengl state
@@ -154,112 +187,156 @@ int main() {
         skyBox.Draw();
 
 
-        if (isAnimated) {
-            // calculate atom position
-            // --------------------
-            mat4 model = mat4(1.0f);
-            model = translate(model, atomPos);
-            atomObj.Model = model;
-            atomObj.updateLightPos(electronPos);
-            atomObj.updateViewPos(camera);
 
-            // calculate electron scale, position, orbit rotation & Rotate around itself
-            // ----------------------------------------------------------------------
-            model = mat4(1.0f);
-            model = scale(model, vec3(0.1f, 0.1f, 0.1f));
-
-            electronPos = atomPos + vec3(
-                    sin(frameToggled) * electronOrbitRadius,
-                    0.0f,
-                    cos(frameToggled) * electronOrbitRadius);
-            model = translate(model, electronPos);
-            electronObj1.Model = model;
-
-
-
-            // calculate electron scale, position, orbit rotation & Rotate around itself
-            // ----------------------------------------------------------------------
-            model = mat4(1.0f);
-            model = scale(model, vec3(0.1f, 0.1f, 0.1f));
-
-            electronPos = atomPos + vec3(
-                    0.0f,
-                    sin(frameToggled) * electronOrbitRadius,
-                    cos(frameToggled) * electronOrbitRadius);
-            model = translate(model, electronPos);
-            electronObj2.Model = model;
+        // calculate atom position
+        // --------------------
+        mat4 model = mat4(1.0f);
+        model = scale(model, vec3(0.3f, 0.3f, 0.3f));
+        model = translate(model, atomPos);
+        // Rotate around itself
+        model = rotate(model, frameToggled * 1.5f * radians(-50.0f), vec3(0.1f, 1.0f, 0.0f));
+        atomUDObj.Model = model;
+        // calculate atom position
+        // --------------------
+        model = mat4(1.0f);        model = scale(model, vec3(0.3f, 0.3f, 0.3f));
+        model = translate(model, atomPos);
+        // Rotate around itself
+        model = rotate(model, frameToggled * 1.5f * radians(-50.0f), vec3(0.1f, 1.0f, 0.0f));
+        atomLRObj.Model = model;
+        // calculate atom position
+        // --------------------
+        model = mat4(1.0f);        model = scale(model, vec3(0.3f, 0.3f, 0.3f));
+        model = translate(model, atomPos);
+        // Rotate around itself
+        model = rotate(model, frameToggled * 1.5f * radians(-50.0f), vec3(0.1f, 1.0f, 0.0f));
+        atomRLObj.Model = model;
 
 
 
-            // calculate electron scale, position, orbit rotation & Rotate around itself
-            // ----------------------------------------------------------------------
-            model = mat4(1.0f);
-            model = scale(model, vec3(0.1f, 0.1f, 0.1f));
 
-            electronPos = atomPos + vec3(
-                    cos(frameToggled) * electronOrbitRadius,
-                    sin(frameToggled) * electronOrbitRadius,
-                    0.0f);
-            model = translate(model, electronPos);
-            electronObj3.Model = model;
+        // calculate electron scale, position, orbit rotation & Rotate around itself
+        // ----------------------------------------------------------------------
+        model = mat4(1.0f);
+        model = scale(model, vec3(0.1f, 0.1f, 0.1f));
+
+        electronPos = atomPos + vec3(
+                sin(frameToggled) * electronOrbitRadius,
+                0.0f,
+                cos(frameToggled) * electronOrbitRadius);
+        model = translate(model, electronPos);
+        electronObj1.Model = model;
 
 
-            // calculate electron scale, position, orbit rotation & Rotate around itself
-            // ----------------------------------------------------------------------
-            model = mat4(1.0f);
-            model = scale(model, vec3(0.1f, 0.1f, 0.1f));
+        // calculate electron scale, position, orbit rotation & Rotate around itself
+        // ----------------------------------------------------------------------
+        model = mat4(1.0f);
+        model = scale(model, vec3(0.1f, 0.1f, 0.1f));
 
-            float diagonalOrbitRadius = sqrt(pow(electronOrbitRadius, 2) / 2);
-            float diagonalOrbitAngle = 45.0f;
-
-            electronPos = atomPos + vec3(sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
-                                              sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
-                                              cos(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius);
-
-            model = translate(model, electronPos);
-            electronObj4.Model = model;
+        electronPos = atomPos + vec3(
+                0.0f,
+                sin(frameToggled) * electronOrbitRadius,
+                cos(frameToggled) * electronOrbitRadius);
+        model = translate(model, electronPos);
+        electronObj2.Model = model;
 
 
 
-            // calculate electron scale, position, orbit rotation & Rotate around itself
-            // ----------------------------------------------------------------------
-            model = mat4(1.0f);
-            model = scale(model, vec3(0.1f, 0.1f, 0.1f));
+        // calculate electron scale, position, orbit rotation & Rotate around itself
+        // ----------------------------------------------------------------------
+        model = mat4(1.0f);
+        model = scale(model, vec3(0.1f, 0.1f, 0.1f));
+
+        electronPos = atomPos + vec3(
+                cos(frameToggled) * electronOrbitRadius,
+                sin(frameToggled) * electronOrbitRadius,
+                0.0f);
+        model = translate(model, electronPos);
+        electronObj3.Model = model;
 
 
-            electronPos = atomPos + vec3(
-                    -sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
-                    sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
-                    cos(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius);
+        // calculate electron scale, position, orbit rotation & Rotate around itself
+        // ----------------------------------------------------------------------
+        model = mat4(1.0f);
+        model = scale(model, vec3(0.1f, 0.1f, 0.1f));
 
-            model = translate(model, electronPos);
-            electronObj5.Model = model;
+        float diagonalOrbitRadius = sqrt(pow(electronOrbitRadius, 2) / 2);
+        float diagonalOrbitAngle = 45.0f;
 
-        }
+        electronPos = atomPos + vec3(sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
+                                     sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
+                                     cos(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius);
+
+        model = translate(model, electronPos);
+        electronObj4.Model = model;
+
+
+
+        // calculate electron scale, position, orbit rotation & Rotate around itself
+        // ----------------------------------------------------------------------
+        model = mat4(1.0f);
+        model = scale(model, vec3(0.1f, 0.1f, 0.1f));
+
+
+        electronPos = atomPos + vec3(
+                -sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
+                sin(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius,
+                cos(frameToggled + diagonalOrbitAngle) * diagonalOrbitRadius);
+
+        model = translate(model, electronPos);
+        electronObj5.Model = model;
+
+
+
+        // calculate electron scale, position, orbit rotation & Rotate around itself
+        // ----------------------------------------------------------------------
+        model = mat4(1.0f);
+        model = scale(model, vec3(0.05f, 0.05f, 0.05f));
+
+        lightElectronPos = atomPos + vec3(
+                sin(frameToggled * 5) * electronOrbitRadius,
+                0.0f,
+                cos(frameToggled * 5) * electronOrbitRadius);
+        model = translate(model, lightElectronPos);
+        lightElectronObj.Model = model;
+
+
+
 
         // draw atom, electron
         // ------------------------
-        atomObj.drawObject(camera);
+        atomUDObj.updateViewPos(camera);
+        atomUDObj.updateLightPos(lightElectronPos);
+        atomUDObj.drawObject(camera);
+        atomLRObj.updateViewPos(camera);
+        atomLRObj.updateLightPos(lightElectronPos);
+        atomLRObj.drawObject(camera);
+        atomRLObj.updateViewPos(camera);
+        atomRLObj.updateLightPos(lightElectronPos);
+        atomRLObj.drawObject(camera);
 
         electronObj1.updateViewPos(camera);
-        electronObj1.updateLightPos(atomPos);
+        electronObj1.updateLightPos(lightElectronPos);
         electronObj1.drawObject(camera);
 
         electronObj2.updateViewPos(camera);
-        electronObj2.updateLightPos(electronPos);
+        electronObj2.updateLightPos(lightElectronPos);
         electronObj2.drawObject(camera);
 
         electronObj3.updateViewPos(camera);
-        electronObj3.updateLightPos(electronPos);
+        electronObj3.updateLightPos(lightElectronPos);
         electronObj3.drawObject(camera);
 
         electronObj4.updateViewPos(camera);
-        electronObj4.updateLightPos(electronPos);
+        electronObj4.updateLightPos(lightElectronPos);
         electronObj4.drawObject(camera);
 
         electronObj5.updateViewPos(camera);
-        electronObj5.updateLightPos(electronPos);
+        electronObj5.updateLightPos(lightElectronPos);
         electronObj5.drawObject(camera);
+
+        lightElectronObj.updateViewPos(camera);
+        lightElectronObj.updateLightPos(lightElectronPos);
+        lightElectronObj.drawObject(camera);
 
 
         // Draw a circle showing the electron's orbit around the atom
@@ -289,15 +366,20 @@ int main() {
             electronOrbitCircle5.rotate(radians(90.0f), vec3(1.0f, -1.0f, 0.0f));
             electronOrbitCircle5.Draw();
 
+            lightElectronOrbitCircle.setUniforms(camera.UpdatedProjection(), camera.UpdatedView());
+            lightElectronOrbitCircle.scale(vec3(0.1f, 0.1f, 0.1f));
+            lightElectronOrbitCircle.rotate(radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
+            lightElectronOrbitCircle.Draw();
+
         }
 
 
         // from above
         if (isCam1) {
             isCam1 = false;
-            camera.Position = vec3(-0.15, 13.54, 0.74);
-            camera.Front = vec3(0.017, -1, -0.033);
-            camera.Pitch = -88.0f;
+            camera.Position = vec3(0.0316, 19.73, -0.81);
+            camera.Front = vec3(0.0, -1, -0.0175);
+            camera.Pitch = -89.0f;
         }
         // from the atom
         if (isCam2) {
@@ -329,8 +411,14 @@ int main() {
     // ------------------------------------------------------------------------
     electronObj1.delete_VAO_Buffers();
     electronObj2.delete_VAO_Buffers();
+    electronObj3.delete_VAO_Buffers();
+    electronObj4.delete_VAO_Buffers();
+    electronObj5.delete_VAO_Buffers();
+    lightElectronObj.delete_VAO_Buffers();
 
-    atomObj.delete_VAO_Buffers();
+    atomUDObj.delete_VAO_Buffers();
+    atomLRObj.delete_VAO_Buffers();
+    atomRLObj.delete_VAO_Buffers();
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -401,14 +489,15 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-        isAnimated = !isAnimated;
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        if (animationSpeed != 0) animationSpeed = 0;
+        else animationSpeed = 1;
+    }
 
     if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
         animationSpeed = animationSpeed * 1.2;
     if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
         animationSpeed = animationSpeed / 1.2;
-
     if (key == GLFW_KEY_KP_MULTIPLY && action == GLFW_PRESS)
         animationSpeed = 1;
 
