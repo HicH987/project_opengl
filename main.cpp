@@ -1,3 +1,4 @@
+/*run: C:\Users\Administrator\Desktop\si_opengl_project\cmake-build-debug\test_gl.exe*/
 #include <iostream>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
